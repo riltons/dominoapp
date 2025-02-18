@@ -8,36 +8,36 @@ export default function HomeScreen() {
   return (
     <ScrollView style={styles.container}>
       <View style={styles.header}>
-        <Text style={styles.welcome}>Welcome back!</Text>
+        <Text style={styles.welcome}>Bem-vindo de volta!</Text>
         <Text style={styles.email}>{user?.email}</Text>
       </View>
 
       <View style={styles.statsContainer}>
         <View style={styles.statCard}>
           <Text style={styles.statNumber}>0</Text>
-          <Text style={styles.statLabel}>Games Played</Text>
+          <Text style={styles.statLabel}>Jogos</Text>
         </View>
         <View style={styles.statCard}>
           <Text style={styles.statNumber}>0</Text>
-          <Text style={styles.statLabel}>Wins</Text>
+          <Text style={styles.statLabel}>Vitórias</Text>
         </View>
         <View style={styles.statCard}>
           <Text style={styles.statNumber}>0</Text>
-          <Text style={styles.statLabel}>Communities</Text>
+          <Text style={styles.statLabel}>Comunidades</Text>
         </View>
       </View>
 
       <View style={styles.section}>
-        <Text style={styles.sectionTitle}>Recent Games</Text>
+        <Text style={styles.sectionTitle}>Jogos Recentes</Text>
         <View style={styles.emptyState}>
-          <Text style={styles.emptyStateText}>No recent games</Text>
+          <Text style={styles.emptyStateText}>Nenhum jogo recente</Text>
         </View>
       </View>
 
       <View style={styles.section}>
-        <Text style={styles.sectionTitle}>Your Communities</Text>
+        <Text style={styles.sectionTitle}>Suas Comunidades</Text>
         <View style={styles.emptyState}>
-          <Text style={styles.emptyStateText}>No communities joined</Text>
+          <Text style={styles.emptyStateText}>Nenhuma comunidade</Text>
         </View>
       </View>
     </ScrollView>

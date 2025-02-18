@@ -30,13 +30,13 @@ export default function AuthScreen() {
   return (
     <View style={styles.container}>
       <Text style={styles.title}>DominoApp</Text>
-      <Text style={styles.subtitle}>{isLogin ? 'Login' : 'Sign Up'}</Text>
+      <Text style={styles.subtitle}>{isLogin ? 'Entrar' : 'Cadastrar'}</Text>
 
       {error ? <Text style={styles.error}>{error}</Text> : null}
 
       <TextInput
         style={styles.input}
-        placeholder="Email"
+        placeholder="E-mail"
         value={email}
         onChangeText={setEmail}
         keyboardType="email-address"
@@ -45,7 +45,7 @@ export default function AuthScreen() {
 
       <TextInput
         style={styles.input}
-        placeholder="Password"
+        placeholder="Senha"
         value={password}
         onChangeText={setPassword}
         secureTextEntry
@@ -54,7 +54,7 @@ export default function AuthScreen() {
       {!isLogin && (
         <TextInput
           style={styles.input}
-          placeholder="Phone Number"
+          placeholder="Celular"
           value={phone}
           onChangeText={setPhone}
           keyboardType="phone-pad"
@@ -62,12 +62,17 @@ export default function AuthScreen() {
       )}
 
       <TouchableOpacity style={styles.button} onPress={handleSubmit}>
-        <Text style={styles.buttonText}>{isLogin ? 'Login' : 'Sign Up'}</Text>
+        <Text style={styles.buttonText}>{isLogin ? 'Entrar' : 'Cadastrar'}</Text>
       </TouchableOpacity>
 
-      <TouchableOpacity onPress={() => setIsLogin(!isLogin)}>
+      <TouchableOpacity
+        style={styles.switchButton}
+        onPress={() => setIsLogin(!isLogin)}
+      >
         <Text style={styles.switchText}>
-          {isLogin ? "Don't have an account? Sign up" : 'Already have an account? Login'}
+          {isLogin
+            ? 'Não tem uma conta? Cadastre-se'
+            : 'Já tem uma conta? Entre'}
         </Text>
       </TouchableOpacity>
     </View>

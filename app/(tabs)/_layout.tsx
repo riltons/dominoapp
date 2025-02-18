@@ -24,24 +24,7 @@ export default function TabLayout() {
           ),
         }}
       />
-      <Tabs.Screen
-        name="communities"
-        options={{
-          title: 'Communities',
-          tabBarIcon: ({ size, color }) => (
-            <Ionicons name="people" size={size} color={color} />
-          ),
-        }}
-      />
-      <Tabs.Screen
-        name="games"
-        options={{
-          title: 'Games',
-          tabBarIcon: ({ size, color }) => (
-            <Ionicons name="game-controller" size={size} color={color} />
-          ),
-        }}
-      />
+
       <Tabs.Screen
         name="players"
         options={{

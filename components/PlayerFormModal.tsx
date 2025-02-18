@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { View, Text, StyleSheet, Modal, TextInput, TouchableOpacity } from 'react-native';
+import { View, Text, StyleSheet, Modal, TextInput, TouchableOpacity, ToastAndroid, Platform } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 
 interface PlayerFormModalProps {
@@ -21,6 +21,11 @@ export default function PlayerFormModal({
   const handleSave = () => {
     if (name.trim() && phone.trim()) {
       onSave({ name, phone });
+      if (Platform.OS === 'android') {
+        ToastAndroid.show('Jogador salvo com sucesso!', ToastAndroid.SHORT);
+      }
+      setName('');
+      setPhone('');
       onClose();
     }
   };

@@ -56,12 +56,25 @@ export const useAuthStore = create<AuthState>((set) => {
 
     signIn: async (email: string, password: string) => {
       try {
+        if (!email || !password) {
+          throw new Error('Email and password are required');
+        }
+
         const { data, error } = await supabase.auth.signInWithPassword({
           email,
           password,
         });
 
-        if (error) throw error;
+        if (error) {
+          if (error.message === 'Invalid login credentials') {
+            throw new Error('Email ou senha inválidos');
+          }
+          throw error;
+        }
+
+        if (!data.user || !data.session) {
+          throw new Error('Erro ao fazer login. Tente novamente.');
+        }
 
         set({ isAuthenticated: true, user: data.user });
         await saveSession(data.session);

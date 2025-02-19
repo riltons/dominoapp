@@ -28,6 +28,11 @@ export default function TabLayout() {
         ),
         tabBarStyle: {
           backgroundColor: '#1a1a1a',
+          paddingVertical: 20,
+          height: 70
+        },
+        tabBarItemStyle: {
+          paddingVertical: 10
         },
         tabBarActiveTintColor: '#4CAF50',
         tabBarInactiveTintColor: '#888',
@@ -39,13 +44,12 @@ export default function TabLayout() {
       <Tabs.Screen
         name="index"
         options={{
-          title: 'Início',
+          title: 'Home',
           tabBarIcon: ({ size, color }) => (
             <Ionicons name="home" size={size} color={color} />
           ),
         }}
       />
-
       <Tabs.Screen
         name="players"
         options={{

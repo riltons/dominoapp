@@ -2,12 +2,14 @@ import React, { useState, useEffect } from 'react';
 import { View, Text, StyleSheet, ScrollView, TouchableOpacity, Alert } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useAuthStore } from '../../stores/authStore';
+import { useRouter } from 'expo-router';
 import { supabase } from '../../lib/supabase';
 import { getTableName } from '../../utils/tablePrefix';
 import CommunityFormModal from '../../components/CommunityFormModal';
 
 export default function CommunitiesScreen() {
   const { user } = useAuthStore();
+  const router = useRouter();
   const [communities, setCommunities] = useState([]);
   const [isModalVisible, setIsModalVisible] = useState(false);
   const [selectedCommunity, setSelectedCommunity] = useState(null);
@@ -132,7 +134,11 @@ export default function CommunitiesScreen() {
           </View>
         ) : (
           communities.map((community) => (
-            <View key={community.id} style={styles.communityCard}>
+            <TouchableOpacity
+              key={community.id}
+              style={styles.communityCard}
+              onPress={() => router.push(`/community/${community.id}`)}
+            >
               <View style={styles.communityInfo}>
                 <Text style={styles.communityName}>{community.name}</Text>
                 <Text style={styles.communityDescription}>{community.description}</Text>
@@ -140,18 +146,24 @@ export default function CommunitiesScreen() {
               <View style={styles.communityActions}>
                 <TouchableOpacity
                   style={styles.actionButton}
-                  onPress={() => handleEditCommunity(community)}
+                  onPress={(e) => {
+                    e.stopPropagation();
+                    handleEditCommunity(community);
+                  }}
                 >
                   <Ionicons name="pencil" size={20} color="#2196F3" />
                 </TouchableOpacity>
                 <TouchableOpacity
                   style={styles.actionButton}
-                  onPress={() => handleDeleteCommunity(community)}
+                  onPress={(e) => {
+                    e.stopPropagation();
+                    handleDeleteCommunity(community);
+                  }}
                 >
                   <Ionicons name="trash" size={20} color="#F44336" />
                 </TouchableOpacity>
               </View>
-            </View>
+            </TouchableOpacity>
           ))
         )}
       </ScrollView>

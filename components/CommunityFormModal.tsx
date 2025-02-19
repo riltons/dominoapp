@@ -116,8 +116,8 @@ export default function CommunityFormModal({
           const memberRecords = selectedPlayers.map(player => ({
             community_id: communityId,
             player_id: player.id,
-            role: 'member',
-            created_by: user.id
+            user_id: user.id,
+            role: 'member'
           }));
 
           const { error: membersError } = await supabase

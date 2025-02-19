@@ -1,10 +1,31 @@
 import { Tabs } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
+import { View, Text, TouchableOpacity } from 'react-native';
+import { useRouter } from 'expo-router';
 
 export default function TabLayout() {
+  const router = useRouter();
   return (
     <Tabs
       screenOptions={{
+        headerTitle: '',
+        headerLeft: () => (
+          <View style={{ flexDirection: 'row', alignItems: 'center', marginLeft: 10 }}>
+            <Ionicons name="game-controller" size={24} color="#4CAF50" />
+            <Text style={{ color: '#fff', fontSize: 18, marginLeft: 8 }}>DominoApp</Text>
+          </View>
+        ),
+        headerRight: () => (
+            <TouchableOpacity 
+              onPress={() => {
+                // Implementar lógica de logout aqui
+                router.replace('/auth');
+              }}
+              style={{ marginRight: 15 }}
+            >
+              <Ionicons name="log-out-outline" size={24} color="#4CAF50" />
+            </TouchableOpacity>
+        ),
         tabBarStyle: {
           backgroundColor: '#1a1a1a',
         },

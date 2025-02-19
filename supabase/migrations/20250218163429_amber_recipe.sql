@@ -235,22 +235,32 @@ CREATE POLICY "Users can insert their own profile"
 
 CREATE POLICY "Public communities are viewable by everyone"
   ON communities FOR SELECT
-  USING (privacy = 'public' OR EXISTS (
-    SELECT 1 FROM community_members WHERE community_id = id AND user_id = auth.uid()
+  USING (created_by = auth.uid() OR EXISTS (
+    SELECT 1 FROM community_members WHERE community_id = id AND player_id IN (
+      SELECT id FROM players WHERE created_by = auth.uid()
+    )
   ));
 
 CREATE POLICY "Community members can view private communities"
   ON communities FOR SELECT
-  USING (EXISTS (
-    SELECT 1 FROM community_members WHERE community_id = id AND user_id = auth.uid()
+  USING (created_by = auth.uid() OR EXISTS (
+    SELECT 1 FROM community_members WHERE community_id = id AND player_id IN (
+      SELECT id FROM players WHERE created_by = auth.uid()
+    )
   ));
 
 CREATE POLICY "Community admins can update community"
   ON communities FOR UPDATE
-  USING (EXISTS (
+  USING (created_by = auth.uid() OR EXISTS (
     SELECT 1 FROM community_members 
-    WHERE community_id = id AND user_id = auth.uid() AND role = 'admin'
+    WHERE community_id = id AND player_id IN (
+      SELECT id FROM players WHERE created_by = auth.uid()
+    ) AND role = 'admin'
   ));
+
+CREATE POLICY "Users can create communities"
+  ON communities FOR INSERT
+  WITH CHECK (auth.uid() = created_by);
 
 -- Add more policies as needed for other tables
 

@@ -112,16 +112,12 @@ export default function PlayersScreen() {
   };
 
   return (
-    <ScrollView style={styles.container}>
+    <View style={styles.container}>
       <View style={styles.header}>
         <Text style={styles.title}>Jogadores</Text>
-        <TouchableOpacity style={styles.addButton} onPress={handleAddPlayer}>
-          <Ionicons name="add-circle" size={24} color="#4CAF50" />
-          <Text style={styles.addButtonText}>Novo Jogador</Text>
-        </TouchableOpacity>
       </View>
 
-      <View style={styles.playersList}>
+      <ScrollView contentContainerStyle={styles.scrollView}>
         {players.length === 0 ? (
           <View style={styles.emptyState}>
             <Text style={styles.emptyStateText}>Nenhum jogador cadastrado</Text>
@@ -130,64 +126,74 @@ export default function PlayersScreen() {
           players.map((player) => (
             <PlayerCard
               key={player.id}
-              name={player.name}
-              email={player.email}
-              onEdit={() => handleEditPlayer(player)}
-              onDelete={() => handleDeletePlayer(player)}
+              player={player}
+              onEdit={handleEditPlayer}
+              onDelete={handleDeletePlayer}
             />
           ))
         )}
-      </View>
+      </ScrollView>
+
+      <TouchableOpacity
+        style={styles.fab}
+        onPress={handleAddPlayer}
+      >
+        <Ionicons name="add" size={24} color="#FFFFFF" />
+      </TouchableOpacity>
 
       <PlayerFormModal
         visible={isModalVisible}
         onClose={() => setIsModalVisible(false)}
         onSave={handleSavePlayer}
-        initialData={selectedPlayer}
+        player={selectedPlayer}
       />
-    </ScrollView>
+    </View>
   );
 }
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#1a1a1a',
+    backgroundColor: '#1a1a1a'
   },
   header: {
     padding: 16,
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
+    backgroundColor: '#2a2a2a'
   },
   title: {
     fontSize: 24,
     fontWeight: 'bold',
-    color: '#fff',
+    color: '#fff'
   },
-  addButton: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    backgroundColor: '#333',
-    padding: 8,
-    borderRadius: 8,
-  },
-  addButtonText: {
-    color: '#4CAF50',
-    marginLeft: 8,
-  },
-  playersList: {
+  scrollView: {
     padding: 16,
   },
   emptyState: {
-    padding: 32,
     alignItems: 'center',
     justifyContent: 'center',
-    backgroundColor: '#222',
-    borderRadius: 8,
+    padding: 20,
   },
   emptyStateText: {
-    color: '#888',
     fontSize: 16,
+    color: '#666',
+  },
+  fab: {
+    position: 'absolute',
+    right: 16,
+    bottom: 16,
+    width: 56,
+    height: 56,
+    borderRadius: 28,
+    backgroundColor: '#4CAF50',
+    justifyContent: 'center',
+    alignItems: 'center',
+    elevation: 4,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.25,
+    shadowRadius: 4,
   },
 });

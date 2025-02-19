@@ -8,6 +8,8 @@ import {
   StyleSheet,
   Alert,
   ScrollView,
+  Platform,
+  ToastAndroid,
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useAuthStore } from '../stores/authStore';
@@ -114,6 +116,7 @@ export default function CommunityFormModal({
           const memberRecords = selectedPlayers.map(player => ({
             community_id: communityId,
             player_id: player.id,
+            role: 'member',
             created_by: user.id
           }));
 
@@ -125,6 +128,9 @@ export default function CommunityFormModal({
         }
       }
 
+      if (Platform.OS === 'android') {
+        ToastAndroid.show('Comunidade salva com sucesso!', ToastAndroid.SHORT);
+      }
       onSave();
       onClose();
     } catch (error) {
@@ -133,24 +139,19 @@ export default function CommunityFormModal({
   };
 
   return (
-    <Modal
-      visible={visible}
-      animationType="slide"
-      transparent={true}
-      onRequestClose={onClose}
-    >
-      <View style={styles.centeredView}>
-        <View style={styles.modalView}>
+    <Modal visible={visible} transparent animationType="slide">
+      <View style={styles.modalContainer}>
+        <View style={styles.modalContent}>
           <View style={styles.modalHeader}>
             <Text style={styles.modalTitle}>
               {community ? 'Editar Comunidade' : 'Nova Comunidade'}
             </Text>
-            <TouchableOpacity onPress={onClose} style={styles.closeButton}>
-              <Ionicons name="close" size={24} color="#666" />
+            <TouchableOpacity onPress={onClose}>
+              <Ionicons name="close" size={24} color="#fff" />
             </TouchableOpacity>
           </View>
 
-          <ScrollView style={styles.formContainer}>
+          <View style={styles.form}>
             <View style={styles.inputContainer}>
               <Text style={styles.label}>Nome</Text>
               <TextInput
@@ -158,6 +159,7 @@ export default function CommunityFormModal({
                 value={name}
                 onChangeText={setName}
                 placeholder="Nome da comunidade"
+                placeholderTextColor="#666"
               />
             </View>
 
@@ -168,6 +170,7 @@ export default function CommunityFormModal({
                 value={description}
                 onChangeText={setDescription}
                 placeholder="Descrição da comunidade"
+                placeholderTextColor="#666"
                 multiline
                 numberOfLines={3}
               />
@@ -175,42 +178,33 @@ export default function CommunityFormModal({
 
             <View style={styles.inputContainer}>
               <Text style={styles.label}>Membros</Text>
-              <View style={styles.playersList}>
-                {availablePlayers.map(player => (
-                  <TouchableOpacity
-                    key={player.id}
-                    style={[
-                      styles.playerChip,
-                      selectedPlayers.find(p => p.id === player.id) && styles.playerChipSelected
-                    ]}
-                    onPress={() => togglePlayerSelection(player)}
-                  >
-                    <Text
+              <ScrollView style={styles.playersContainer}>
+                <View style={styles.playersList}>
+                  {availablePlayers.map(player => (
+                    <TouchableOpacity
+                      key={player.id}
                       style={[
-                        styles.playerChipText,
-                        selectedPlayers.find(p => p.id === player.id) && styles.playerChipTextSelected
+                        styles.playerChip,
+                        selectedPlayers.find(p => p.id === player.id) && styles.playerChipSelected
                       ]}
+                      onPress={() => togglePlayerSelection(player)}
                     >
-                      {player.name}
-                    </Text>
-                  </TouchableOpacity>
-                ))}
-              </View>
+                      <Text
+                        style={[
+                          styles.playerChipText,
+                          selectedPlayers.find(p => p.id === player.id) && styles.playerChipTextSelected
+                        ]}
+                      >
+                        {player.name}
+                      </Text>
+                    </TouchableOpacity>
+                  ))}
+                </View>
+              </ScrollView>
             </View>
-          </ScrollView>
 
-          <View style={styles.modalFooter}>
-            <TouchableOpacity
-              style={[styles.button, styles.cancelButton]}
-              onPress={onClose}
-            >
-              <Text style={styles.buttonText}>Cancelar</Text>
-            </TouchableOpacity>
-            <TouchableOpacity
-              style={[styles.button, styles.saveButton]}
-              onPress={handleSave}
-            >
-              <Text style={[styles.buttonText, styles.saveButtonText]}>Salvar</Text>
+            <TouchableOpacity style={styles.saveButton} onPress={handleSave}>
+              <Text style={styles.saveButtonText}>Salvar</Text>
             </TouchableOpacity>
           </View>
         </View>
@@ -220,106 +214,84 @@ export default function CommunityFormModal({
 }
 
 const styles = StyleSheet.create({
-  centeredView: {
+  modalContainer: {
     flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
     backgroundColor: 'rgba(0, 0, 0, 0.5)',
+    justifyContent: 'center',
+    padding: 16,
   },
-  modalView: {
-    width: '90%',
-    maxHeight: '80%',
-    backgroundColor: 'white',
-    borderRadius: 12,
-    overflow: 'hidden',
+  modalContent: {
+    backgroundColor: '#1a1a1a',
+    borderRadius: 8,
+    padding: 16,
   },
   modalHeader: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    padding: 16,
-    borderBottomWidth: 1,
-    borderBottomColor: '#eee',
+    marginBottom: 16,
   },
   modalTitle: {
     fontSize: 20,
     fontWeight: 'bold',
+    color: '#fff',
   },
-  closeButton: {
-    padding: 4,
-  },
-  formContainer: {
-    padding: 16,
+  form: {
+    gap: 16,
   },
   inputContainer: {
-    marginBottom: 16,
+    gap: 8,
   },
   label: {
+    color: '#fff',
     fontSize: 16,
-    marginBottom: 8,
-    color: '#333',
   },
   input: {
-    borderWidth: 1,
-    borderColor: '#ddd',
+    backgroundColor: '#333',
     borderRadius: 8,
     padding: 12,
+    color: '#fff',
     fontSize: 16,
   },
   textArea: {
     height: 100,
     textAlignVertical: 'top',
   },
+  playersContainer: {
+    maxHeight: 150,
+  },
   playersList: {
     flexDirection: 'row',
     flexWrap: 'wrap',
     gap: 8,
+    paddingVertical: 8,
   },
   playerChip: {
     paddingHorizontal: 12,
     paddingVertical: 6,
     borderRadius: 16,
-    borderWidth: 1,
-    borderColor: '#ddd',
-    backgroundColor: '#fff',
+    backgroundColor: '#333',
   },
   playerChipSelected: {
-    backgroundColor: '#007AFF',
-    borderColor: '#007AFF',
+    backgroundColor: '#4CAF50',
   },
   playerChipText: {
     fontSize: 14,
-    color: '#333',
+    color: '#fff',
   },
   playerChipTextSelected: {
     color: '#fff',
   },
-  modalFooter: {
-    flexDirection: 'row',
-    justifyContent: 'flex-end',
-    padding: 16,
-    borderTopWidth: 1,
-    borderTopColor: '#eee',
-    gap: 12,
-  },
-  button: {
-    paddingHorizontal: 20,
-    paddingVertical: 10,
-    borderRadius: 8,
-    minWidth: 100,
-    alignItems: 'center',
-  },
-  cancelButton: {
-    backgroundColor: '#f8f9fa',
-  },
   saveButton: {
-    backgroundColor: '#007AFF',
-  },
-  buttonText: {
-    fontSize: 16,
-    color: '#333',
+    backgroundColor: '#4CAF50',
+    padding: 12,
+    borderRadius: 8,
+    alignItems: 'center',
+    marginTop: 8,
   },
   saveButtonText: {
     color: '#fff',
+    fontSize: 16,
+    fontWeight: 'bold',
   },
 });

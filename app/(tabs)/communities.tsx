@@ -20,15 +20,24 @@ export default function CommunitiesScreen() {
 
   const loadCommunities = async () => {
     try {
-      const { data, error } = await supabase
+      console.log('[INFO] Iniciando busca de comunidades para o usuário:', user.id);
+      
+      // Buscar comunidades onde o usuário é membro ou é o criador
+      const { data: communities, error } = await supabase
         .from(getTableName('communities'))
-        .select('*, community_members(player:players(*))') // Join with members and their player info
+        .select('*')
         .eq('created_by', user.id)
         .order('name');
 
-      if (error) throw error;
-      setCommunities(data || []);
+      if (error) {
+        console.error('[ERROR] Erro ao buscar comunidades:', error);
+        throw error;
+      }
+
+      console.log('[INFO] Comunidades encontradas:', communities?.length || 0);
+      setCommunities(communities || []);
     } catch (error) {
+      console.error('[ERROR] Erro detalhado ao carregar comunidades:', error);
       Alert.alert('Erro', 'Não foi possível carregar as comunidades.');
     }
   };
@@ -41,6 +50,46 @@ export default function CommunitiesScreen() {
   const handleEditCommunity = (community) => {
     setSelectedCommunity(community);
     setIsModalVisible(true);
+  };
+
+  const handleSaveCommunity = async (communityData) => {
+    try {
+      if (!communityData.name?.trim()) {
+        throw new Error('O nome da comunidade é obrigatório.');
+      }
+
+      const communityRecord = {
+        name: communityData.name.trim(),
+        description: communityData.description?.trim() || null,
+        created_by: user.id
+      };
+
+      if (selectedCommunity) {
+        const { data, error } = await supabase
+          .from(getTableName('communities'))
+          .update({
+            ...communityRecord,
+            updated_at: new Date().toISOString(),
+          })
+          .eq('id', selectedCommunity.id)
+          .select();
+
+        if (error) throw error;
+      } else {
+        const { data, error } = await supabase
+          .from(getTableName('communities'))
+          .insert([communityRecord])
+          .select();
+
+        if (error) throw error;
+      }
+
+      await loadCommunities();
+      setIsModalVisible(false);
+    } catch (error) {
+      console.error('Erro ao salvar comunidade:', error);
+      Alert.alert('Erro', error.message || 'Não foi possível salvar a comunidade.');
+    }
   };
 
   const handleDeleteCommunity = async (community) => {
@@ -72,41 +121,52 @@ export default function CommunitiesScreen() {
 
   return (
     <View style={styles.container}>
-      <ScrollView style={styles.scrollView}>
-        {communities.map((community) => (
-          <View key={community.id} style={styles.communityCard}>
-            <View style={styles.communityInfo}>
-              <Text style={styles.communityName}>{community.name}</Text>
-              <Text style={styles.memberCount}>
-                {community.community_members?.length || 0} membros
-              </Text>
-            </View>
-            <View style={styles.actions}>
-              <TouchableOpacity
-                onPress={() => handleEditCommunity(community)}
-                style={styles.actionButton}
-              >
-                <Ionicons name="pencil" size={24} color="#666" />
-              </TouchableOpacity>
-              <TouchableOpacity
-                onPress={() => handleDeleteCommunity(community)}
-                style={styles.actionButton}
-              >
-                <Ionicons name="trash" size={24} color="#ff4444" />
-              </TouchableOpacity>
-            </View>
+      <View style={styles.header}>
+        <Text style={styles.title}>Comunidades</Text>
+      </View>
+
+      <ScrollView contentContainerStyle={styles.scrollView}>
+        {communities.length === 0 ? (
+          <View style={styles.emptyState}>
+            <Text style={styles.emptyStateText}>Nenhuma comunidade cadastrada</Text>
           </View>
-        ))}
+        ) : (
+          communities.map((community) => (
+            <View key={community.id} style={styles.communityCard}>
+              <View style={styles.communityInfo}>
+                <Text style={styles.communityName}>{community.name}</Text>
+                <Text style={styles.communityDescription}>{community.description}</Text>
+              </View>
+              <View style={styles.communityActions}>
+                <TouchableOpacity
+                  style={styles.actionButton}
+                  onPress={() => handleEditCommunity(community)}
+                >
+                  <Ionicons name="pencil" size={20} color="#2196F3" />
+                </TouchableOpacity>
+                <TouchableOpacity
+                  style={styles.actionButton}
+                  onPress={() => handleDeleteCommunity(community)}
+                >
+                  <Ionicons name="trash" size={20} color="#F44336" />
+                </TouchableOpacity>
+              </View>
+            </View>
+          ))
+        )}
       </ScrollView>
 
-      <TouchableOpacity style={styles.fab} onPress={handleAddCommunity}>
-        <Ionicons name="add" size={24} color="white" />
+      <TouchableOpacity
+        style={styles.fab}
+        onPress={handleAddCommunity}
+      >
+        <Ionicons name="add" size={24} color="#FFFFFF" />
       </TouchableOpacity>
 
       <CommunityFormModal
         visible={isModalVisible}
         onClose={() => setIsModalVisible(false)}
-        onSave={loadCommunities}
+        onSave={handleSaveCommunity}
         community={selectedCommunity}
       />
     </View>
@@ -116,11 +176,31 @@ export default function CommunitiesScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#fff',
+    backgroundColor: '#1a1a1a'
+  },
+  header: {
+    padding: 16,
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    backgroundColor: '#2a2a2a'
+  },
+  title: {
+    fontSize: 24,
+    fontWeight: 'bold',
+    color: '#fff'
   },
   scrollView: {
-    flex: 1,
     padding: 16,
+  },
+  emptyState: {
+    alignItems: 'center',
+    justifyContent: 'center',
+    padding: 20,
+  },
+  emptyStateText: {
+    fontSize: 16,
+    color: '#666',
   },
   communityCard: {
     flexDirection: 'row',
@@ -128,29 +208,25 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     padding: 16,
     marginBottom: 12,
-    backgroundColor: '#f8f9fa',
+    backgroundColor: '#2a2a2a',
     borderRadius: 8,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
-    elevation: 3,
   },
   communityInfo: {
     flex: 1,
   },
   communityName: {
     fontSize: 18,
-    fontWeight: 'bold',
+    fontWeight: '500',
+    color: '#fff',
     marginBottom: 4,
   },
-  memberCount: {
+  communityDescription: {
     fontSize: 14,
-    color: '#666',
+    color: '#999',
   },
-  actions: {
+  communityActions: {
     flexDirection: 'row',
-    gap: 12,
+    gap: 8,
   },
   actionButton: {
     padding: 8,
@@ -162,13 +238,13 @@ const styles = StyleSheet.create({
     width: 56,
     height: 56,
     borderRadius: 28,
-    backgroundColor: '#007AFF',
+    backgroundColor: '#4CAF50',
     justifyContent: 'center',
     alignItems: 'center',
+    elevation: 4,
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.25,
     shadowRadius: 4,
-    elevation: 5,
-  }
+  },
 });
